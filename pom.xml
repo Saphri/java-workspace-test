@@ -47,6 +47,12 @@
             <artifactId>quarkus-reactive-mysql-client</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.34</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>io.quarkiverse.reactivemessaging.nats-jetstream</groupId>
             <artifactId>quarkus-messaging-nats-jetstream</artifactId>
             <version>3.15.9</version>

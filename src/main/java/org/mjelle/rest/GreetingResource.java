@@ -8,21 +8,18 @@ import org.mjelle.orm.Fruit;
 
 import io.quarkus.panache.common.Sort;
 import io.smallrye.mutiny.Uni;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
+import lombok.RequiredArgsConstructor;
 
 @Path("/hello")
+@RequiredArgsConstructor
 public class GreetingResource {
 
+    @Channel("data2")
     private final Emitter<String> emitter;
-
-    @Inject
-    public GreetingResource(@Channel("data2") Emitter<String> emitter) {
-        this.emitter = emitter;
-    }
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
