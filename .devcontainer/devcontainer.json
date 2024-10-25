@@ -17,7 +17,9 @@
 		"vscode": {
 			"extensions": [
 				"vscjava.vscode-java-pack",
-				"redhat.vscode-quarkus"
+				"redhat.vscode-quarkus",
+				"ms-azuretools.vscode-docker",
+				"SonarSource.sonarlint-vscode"
 			]
 		}
 	},
