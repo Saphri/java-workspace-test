@@ -55,7 +55,7 @@
         <dependency>
             <groupId>io.quarkiverse.reactivemessaging.nats-jetstream</groupId>
             <artifactId>quarkus-messaging-nats-jetstream</artifactId>
-            <version>3.17.12</version>
+            <version>3.17.14</version>
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
