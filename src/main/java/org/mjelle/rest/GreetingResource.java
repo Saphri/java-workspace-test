@@ -31,9 +31,7 @@ public class GreetingResource {
         var metadata= PublishMessageMetadata.builder()
                 .subject("mysubject." + uuid.toString()).build();
 
-        return emitter.sendMessage(Message.of("Hello called!").addMetadata(metadata))
-            .onFailure().recoverWithItem(e -> {
-                return null;
-            });
+        emitter.sendMessageAndForget(Message.of("Hello called!").addMetadata(metadata));
+        return Uni.createFrom().voidItem();
     }
 }
