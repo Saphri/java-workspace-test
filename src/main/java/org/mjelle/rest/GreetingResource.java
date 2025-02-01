@@ -20,18 +20,18 @@ import lombok.extern.jbosslog.JBossLog;
 @JBossLog
 public class GreetingResource {
 
-    @Channel("myoutgoing")
+    @Channel("task-queue-out")
     private final MutinyEmitter<String> emitter;
 
     private final UUID uuid = UUID.randomUUID();
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public Uni<Void> hello() {
+    public Uni<Void> seedTasks() {
         var metadata= PublishMessageMetadata.builder()
-                .subject("mysubject." + uuid.toString()).build();
+                .subject("task." + uuid.toString()).build();
 
-        emitter.sendMessageAndForget(Message.of("Hello called!").addMetadata(metadata));
+        emitter.sendMessageAndForget(Message.of("Task added!").addMetadata(metadata));
         return Uni.createFrom().voidItem();
     }
 }
