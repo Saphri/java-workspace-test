@@ -1,7 +1,6 @@
 package org.mjelle.service;
 
 import java.time.Duration;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.quarkiverse.reactive.messaging.nats.NatsConfiguration;

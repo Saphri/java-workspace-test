@@ -20,9 +20,10 @@ public class ResourceEventConsumer {
   @Incoming("resource-event-in")
   public Uni<Void> consume(Message<String> resourceEvent) {
     return Uni.createFrom().item(resourceEvent)
-      .onItem().invoke(d -> log.infof("Received message: %s", d))
-      .flatMap(msg -> Uni.createFrom().completionStage(msg.ack()))
-      .flatMap(ignored -> Uni.createFrom().item(resourceEvent.getMetadata(SubscribeMessageMetadata.class).orElse(null)))
-      .onItem().ifNotNull().transformToUni(metadata -> worker.start(metadata.subject().replace("resource-event.", "")));
+      .onItem().invoke(d -> log.infof("Received ResourceEvent message: %s", d))
+      .flatMap(msg -> Uni.createFrom().item(msg.getMetadata(SubscribeMessageMetadata.class).orElse(null)))
+      .onItem().ifNotNull().transformToUni(metadata -> worker.start(metadata.subject().replace("resource-event.", "")))
+      .onItem().invoke(d -> log.infof("Acknowledge ResourceEvent message: %s", resourceEvent))
+      .flatMap(msg -> Uni.createFrom().completionStage(resourceEvent.ack()));
   }
 }

@@ -42,10 +42,11 @@ public class TaskScheduler {
         })
         .onItem().invoke(subjectState -> {
             log.infof("SubjectState name: %s, messages: %d", subjectState.name(), subjectState.count());
+
             var metadata = PublishMessageMetadata.builder()
                 .subject(subjectState.name().replace("task.", "resource-event."))
                 .build();
-            emitter.sendMessageAndForget(Message.of("Work sheduled!").addMetadata(metadata));
+            emitter.sendMessageAndForget(Message.of("Work sheduled!").addMetadata(metadata));              
         })
         .subscribe().with(
             item -> log.info("Task-queue inspected successfully"),
