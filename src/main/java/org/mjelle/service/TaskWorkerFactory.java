@@ -21,11 +21,11 @@ public class TaskWorkerFactory {
   private final AtomicReference<Connection<String>> messageConnection = new AtomicReference<>();
   private final TaskWorker taskWorker;
 
-  public Uni<Void> start(String resourceId) {
+  public Uni<Void> start(final String resourceId) {
     log.infof("Inspecting possible work for resourceId: %s", resourceId);
 
     // read message(s) from task-queue
-    var conf = new TaskConsumerConfiguration<String>("task-consumer-" + resourceId,
+    final var conf = new TaskConsumerConfiguration<String>("task-consumer-" + resourceId,
         "task-queue", "task." + resourceId, Duration.ofSeconds(60));
     return getOrEstablishMessageConnection()
         .flatMap(conn -> conn.next(conf, Duration.ofSeconds(1)))
@@ -40,6 +40,6 @@ public class TaskWorkerFactory {
     })
         .onItem().ifNull()
         .switchTo(() -> connectionFactory.create(ConnectionConfiguration.of(natsConfiguration)))
-        .onItem().invoke(this.messageConnection::set);
+        .invoke(this.messageConnection::set);
   }
 }

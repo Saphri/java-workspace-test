@@ -5,15 +5,18 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
+import io.opentelemetry.context.Context;
 import io.quarkiverse.reactive.messaging.nats.NatsConfiguration;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.Connection;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.ConnectionFactory;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.api.PublishMessageMetadata;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.configuration.ConnectionConfiguration;
+import io.quarkus.opentelemetry.runtime.QuarkusContextStorage;
 import io.quarkus.scheduler.Scheduled;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
+import io.smallrye.reactive.messaging.TracingMetadata;
 import jakarta.enterprise.context.ApplicationScoped;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.jbosslog.JBossLog;
@@ -40,18 +43,19 @@ public class TaskScheduler {
             var m = steamState.subjectStates();
             return Multi.createFrom().items(m.stream());
         })
-        .onItem().invoke(subjectState -> {
+        .call(subjectState -> {
             log.infof("SubjectState name: %s, messages: %d", subjectState.name(), subjectState.count());
 
-            var metadata = PublishMessageMetadata.builder()
+            final var metadata = PublishMessageMetadata.builder()
                 .subject(subjectState.name().replace("task.", "resource-event."))
                 .build();
-            emitter.sendMessageAndForget(Message.of("Work sheduled!").addMetadata(metadata));              
+            final var traceMetadata = TracingMetadata.withCurrent(QuarkusContextStorage.INSTANCE.current());
+
+            return emitter.sendMessage(Message.of("Work sheduled!").addMetadata(metadata).addMetadata(traceMetadata));              
         })
         .subscribe().with(
             item -> log.info("Task-queue inspected successfully"),
             t -> log.error("Failed to browse task-queue", t));
-
   }
 
   private Uni<Connection<String>> getOrEstablishMessageConnection() {

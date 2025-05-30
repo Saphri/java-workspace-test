@@ -13,13 +13,13 @@ import lombok.extern.jbosslog.JBossLog;
 @JBossLog
 public class TaskWorker {
   public Uni<Void> doWork(Message<String> msg, String resourceId) {
+    log.errorf("Doing work for resourceId: %s, message: %s", resourceId, msg);
     return Uni.createFrom().item(msg)
         .emitOn(Executors.newFixedThreadPool(10))
-        .onItem().invoke(m -> log.errorf("Doing work for resourceId: %s, message: %s", resourceId, msg))
         .onItem().delayIt().by(Duration.ofSeconds(15))
-        .onItem().invoke(m -> log.errorf("Acknowledge work for resourceId: %s", resourceId))
-        .flatMap(m -> Uni.createFrom().completionStage(msg.ack()))
-        .onItem().invoke(m -> log.warnf("Work done for resourceId: %s", resourceId))
-        .onFailure().invoke(e -> log.errorf(e, "Error while doing work for resourceId: %s", resourceId));
+        .invoke(m -> log.warnf("Work done for resourceId: %s", resourceId))
+        .replaceWithVoid()
+        .onFailure().invoke(e -> log.errorf(e, "Error while doing work for resourceId: %s", resourceId))
+        .eventually(() -> Uni.createFrom().completionStage(msg.ack()));
   }
 }
