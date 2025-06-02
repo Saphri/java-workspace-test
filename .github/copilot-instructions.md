@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project is a Quarkus application that utilizes NATS JetStream for reactive messaging, OIDC for authentication, and Sentry for error logging. It includes REST endpoints, task scheduling, and Docker configurations for various deployment scenarios.
+This project is a Quarkus application that utilizes NATS JetStream for reactive messaging, OIDC for authentication. It includes REST endpoints, task scheduling, and Docker configurations for various deployment scenarios.
 
 ## Key Components
 
