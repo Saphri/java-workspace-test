@@ -12,7 +12,7 @@ import lombok.extern.jbosslog.JBossLog;
 @Dependent
 @JBossLog
 public class TaskWorker {
-  public Uni<Void> doWork(Message<String> msg, String resourceId) {
+  public Uni<Void> doWork(Message<Object> msg, String resourceId) {
     log.errorf("Doing work for resourceId: %s, message: %s", resourceId, msg);
     return Uni.createFrom().item(msg)
         .emitOn(Executors.newFixedThreadPool(10))

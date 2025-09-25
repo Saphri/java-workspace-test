@@ -6,39 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import io.nats.client.api.AckPolicy;
 import io.nats.client.api.DeliverPolicy;
 import io.nats.client.api.ReplayPolicy;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.configuration.ConsumerConfiguration;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class TaskConsumerConfiguration<T> implements ConsumerConfiguration<T> {
+public class TaskConsumerConfiguration implements ConsumerConfiguration {
 
-  private final String name;
-  private final String stream;
   private final String subject;
   private final Duration ackWait;
-
-  @Override
-  public String name() {
-    return name;
-  }
-
-  @Override
-  public String stream() {
-    return stream;
-  }
-
-  @Override
-  public Optional<String> durable() {
-    return Optional.of(name);
-  }
-
-  @Override
-  public String subject() {
-    return subject;
-  }
 
   @Override
   public Optional<Duration> ackWait() {
@@ -46,8 +23,8 @@ public class TaskConsumerConfiguration<T> implements ConsumerConfiguration<T> {
   }
 
   @Override
-  public Optional<DeliverPolicy> deliverPolicy() {
-    return Optional.of(DeliverPolicy.All);
+  public DeliverPolicy deliverPolicy() {
+    return DeliverPolicy.All;
   }
 
   @Override
@@ -81,13 +58,13 @@ public class TaskConsumerConfiguration<T> implements ConsumerConfiguration<T> {
   }
 
   @Override
-  public Optional<ReplayPolicy> replayPolicy() {
-    return Optional.empty();
+  public ReplayPolicy replayPolicy() {
+    return ReplayPolicy.Original;
   }
 
   @Override
-  public Optional<Integer> replicas() {
-    return Optional.empty();
+  public Integer replicas() {
+    return 1;
   }
 
   @Override
@@ -106,23 +83,32 @@ public class TaskConsumerConfiguration<T> implements ConsumerConfiguration<T> {
   }
 
   @Override
-  public List<Duration> backoff() {
-    return List.of();
-  }
-
-  @Override
-  public Optional<AckPolicy> ackPolicy() {
-    return Optional.of(AckPolicy.Explicit);
-  }
-
-  @Override
   public Optional<ZonedDateTime> pauseUntil() {
     return Optional.empty();
   }
 
   @Override
-  public Optional<Class<T>> payloadType() {
+  public Optional<Class<?>> payloadType() {
     return Optional.empty();
   }
-  
+
+  @Override
+  public List<String> filterSubjects() {
+    return List.of(subject);
+  }
+
+  @Override
+  public Optional<Duration> acknowledgeTimeout() {
+    return Optional.empty();
+  }
+
+  @Override
+  public Boolean durable() {
+    return true;
+  }
+
+  @Override
+  public Optional<List<Duration>> backoff() {
+    return Optional.empty();
+  }  
 }

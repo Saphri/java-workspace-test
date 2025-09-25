@@ -5,21 +5,15 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.mjelle.service.TaskConsumerConfiguration;
 
-import io.opentelemetry.context.Context;
-import io.quarkiverse.reactive.messaging.nats.NatsConfiguration;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.Connection;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.ConnectionFactory;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.api.PublishMessageMetadata;
-import io.quarkiverse.reactive.messaging.nats.jetstream.client.configuration.ConnectionConfiguration;
-import io.quarkus.opentelemetry.runtime.QuarkusContextStorage;
-import io.quarkus.security.identity.SecurityIdentity;
-import io.smallrye.mutiny.Uni;
-import io.smallrye.reactive.messaging.MutinyEmitter;
-import io.smallrye.reactive.messaging.TracingMetadata;
-import jakarta.annotation.security.RolesAllowed;
+import io.quarkiverse.reactive.messaging.nats.jetstream.configuration.JetStreamConfiguration;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -28,46 +22,38 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.jbosslog.JBossLog;
 
 @Path("/hello")
+@RunOnVirtualThread
 @RequiredArgsConstructor
 @JBossLog
 public class GreetingResource {
-  private final SecurityIdentity securityIdentity;
   private final ConnectionFactory connectionFactory;
-  private final NatsConfiguration natsConfiguration;
-  private final AtomicReference<Connection<String>> messageConnection = new AtomicReference<>();
+  private final JetStreamConfiguration natsConfiguration;
+  private final AtomicReference<Connection> messageConnection = new AtomicReference<>();
 
     @Channel("task-queue-out")
-    private final MutinyEmitter<String> emitter;
-
-    private final UUID uuid = UUID.randomUUID();
+    private final Emitter<String> emitter;
 
     @GET
-    @RolesAllowed("user")
     @Produces(MediaType.TEXT_PLAIN)
-    public Uni<Void> seedTasks() {
-        return getOrEstablishMessageConnection()
-            .call(conn -> {
-                final var conf = new TaskConsumerConfiguration<String>("task-consumer-" + uuid.toString(),
-                        "task-queue", "task." + uuid.toString(), Duration.ofSeconds(60));
-                return conn.addConsumer(conf);
-            })
-            .flatMap(conn -> {
-                final var metadata = PublishMessageMetadata.builder()
-                        .subject("task." + uuid.toString()).build();
-                final var traceMetadata = TracingMetadata.withCurrent(QuarkusContextStorage.INSTANCE.current());
+    public void seedTasks() {
+        final var uuid = UUID.randomUUID();
+        final var conn = getOrEstablishMessageConnection();
+        
+        final var conf = new TaskConsumerConfiguration("task." + uuid.toString(), Duration.ofSeconds(30));
+        conn.addConsumerIfAbsent("task-queue", "task-consumer-" + uuid.toString(), conf).await().indefinitely();
 
-                return emitter.sendMessage(Message.of("Task added!").addMetadata(metadata).addMetadata(traceMetadata));
-        });
+        final var metadata = PublishMessageMetadata.builder()
+          .subject("task." + uuid.toString()).build();
+
+        emitter.send(Message.of("Task added!").addMetadata(metadata));
     }
 
-  private Uni<Connection<String>> getOrEstablishMessageConnection() {
-    return Uni.createFrom().item(() -> {
-      messageConnection.get();
-      return messageConnection.get();
-    })
-        .onItem().ifNull()
-        .switchTo(() -> connectionFactory.create(ConnectionConfiguration.of(natsConfiguration)))
-        .onItem().invoke(this.messageConnection::set);
+  private Connection getOrEstablishMessageConnection() {
+    var connection = messageConnection.get();
+    if (connection == null) {
+      connection = connectionFactory.create(natsConfiguration.connection()).await().indefinitely();
+      messageConnection.set(connection);
+    }
+    return connection;
   }
-
 }
