@@ -1,0 +1,11 @@
+services:
+  nats:
+    image: nats:2.11
+    container_name: nats
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: >
+      -js
+      --user guest
+      --pass guest

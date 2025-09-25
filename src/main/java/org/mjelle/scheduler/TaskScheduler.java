@@ -51,7 +51,7 @@ public class TaskScheduler {
           },
           failure -> {
             // Called when the message is acknowledged negatively.
-            log.warnf(failure, "Message to subject %s was not acknowledged: %s", subjectState.name());
+            log.warnf(failure, "Message to subject %s was not acknowledged", subjectState.name());
             return CompletableFuture.completedStage(null);
           }).addMetadata(metadata)
         );
