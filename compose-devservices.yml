@@ -9,3 +9,5 @@ services:
       -js
       --user guest
       --pass guest
+    labels:
+      io.quarkus.devservices.compose.wait_for.logs: .*Server is ready.*

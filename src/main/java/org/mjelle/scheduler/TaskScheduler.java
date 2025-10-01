@@ -1,15 +1,12 @@
 package org.mjelle.scheduler;
 
-import java.util.concurrent.CompletableFuture;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.eclipse.microprofile.reactive.messaging.Channel;
-import org.eclipse.microprofile.reactive.messaging.Emitter;
-import org.eclipse.microprofile.reactive.messaging.Message;
-
+import io.nats.client.JetStreamApiException;
+import io.nats.client.api.StreamInfoOptions;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.Connection;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.ConnectionFactory;
-import io.quarkiverse.reactive.messaging.nats.jetstream.client.api.PublishMessageMetadata;
 import io.quarkiverse.reactive.messaging.nats.jetstream.configuration.JetStreamConfiguration;
 import io.quarkus.scheduler.Scheduled;
 import io.smallrye.common.annotation.RunOnVirtualThread;
@@ -25,38 +22,33 @@ public class TaskScheduler {
   private final JetStreamConfiguration natsConfiguration;
   private final AtomicReference<Connection> messageConnection = new AtomicReference<>();
 
-  @Channel("resource-event-out")
-  private final Emitter<String> emitter;
-
   @Scheduled(every = "10s", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
   @RunOnVirtualThread
   public void scheduleTask() {
     log.info("Task scheduler running");
 
     final var conn = getOrEstablishMessageConnection();
-    final var streamManagement = conn.streamManagement().await().indefinitely();
-    final var streamState = streamManagement.getStreamState("task-queue").await().indefinitely();
-    streamState.subjectStates().stream().forEach(subjectState -> {
-        log.infof("SubjectState name: %s, messages: %d", subjectState.name(), subjectState.count());
 
-        final var metadata = PublishMessageMetadata.builder()
-            .subject(subjectState.name().replace("task.", "resource-event."))
-            .build();
+    conn.nativeConnection(c -> {
+      try {
+        final var streamState = c.jetStreamManagement().getStreamInfo("task-queue", StreamInfoOptions.allSubjects()).getStreamState();
 
-        emitter.send(Message.of("Resource event for subject " + subjectState.name(),
-          () -> {
-            // Called when the message is acknowledged.
-            log.infof("Message to subject %s was acknowledged", subjectState.name());
-            return CompletableFuture.completedStage(null);
-          },
-          failure -> {
-            // Called when the message is acknowledged negatively.
-            log.warnf(failure, "Message to subject %s was not acknowledged", subjectState.name());
-            return CompletableFuture.completedStage(null);
-          }).addMetadata(metadata)
-        );
+        streamState.getSubjectMap().entrySet().stream().forEach(subjectState -> {
+          log.infof("SubjectState name: %s, messages: %d", subjectState.getKey(), subjectState.getValue());
 
-        log.info("Sent Resource event");
+          final var msg = "Resource event for subject " + subjectState.getKey();
+          final var subject = subjectState.getKey().replace("task.", "resource-event.");
+
+          try {
+            c.jetStream().publish(subject, null, msg.getBytes());
+            log.warnf("Sent Resource event on subject: %s", subject);
+          } catch (IOException | JetStreamApiException e) {
+            log.debugf(e, "Exception publishing message to subject: %s", subject);
+          }
+        });
+      } catch (IOException | JetStreamApiException e) {
+        log.warnf(e, "Exception creating stream task-queue");
+      }
     });
   }
 
