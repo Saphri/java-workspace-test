@@ -18,20 +18,21 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.jbosslog.JBossLog;
 
 @Path("/hello")
 @RunOnVirtualThread
-@RequiredArgsConstructor
-@JBossLog
 public class GreetingResource {
-  private final ConnectionFactory connectionFactory;
-  private final JetStreamConfiguration natsConfiguration;
-  private final AtomicReference<Connection> messageConnection = new AtomicReference<>();
-
-    @Channel("task-queue-out")
+    private final ConnectionFactory connectionFactory;
+    private final JetStreamConfiguration natsConfiguration;
     private final Emitter<String> emitter;
+
+    private final AtomicReference<Connection> messageConnection = new AtomicReference<>();
+
+    public GreetingResource(ConnectionFactory connectionFactory, JetStreamConfiguration natsConfiguration, @Channel("task-queue-out") Emitter<String> emitter) {
+        this.connectionFactory = connectionFactory;
+        this.natsConfiguration = natsConfiguration;
+        this.emitter = emitter;
+    }
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)

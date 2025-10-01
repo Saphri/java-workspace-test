@@ -4,13 +4,14 @@ import java.time.Duration;
 import java.util.concurrent.CompletionStage;
 
 import org.eclipse.microprofile.reactive.messaging.Message;
+import org.jboss.logging.Logger;
 
 import jakarta.enterprise.context.Dependent;
-import lombok.extern.jbosslog.JBossLog;
 
 @Dependent
-@JBossLog
 public class TaskWorker {
+  
+  private final Logger log = Logger.getLogger(TaskWorker.class);
 
   /**
    * Performs work asynchronously for the given resource.

@@ -3,6 +3,8 @@ package org.mjelle.scheduler;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jboss.logging.Logger;
+
 import io.nats.client.JetStreamApiException;
 import io.nats.client.api.StreamInfoOptions;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.Connection;
@@ -11,16 +13,21 @@ import io.quarkiverse.reactive.messaging.nats.jetstream.configuration.JetStreamC
 import io.quarkus.scheduler.Scheduled;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.jbosslog.JBossLog;
 
 @ApplicationScoped
-@RequiredArgsConstructor
-@JBossLog
 public class TaskScheduler {
+  
+  private final Logger log = Logger.getLogger(TaskScheduler.class);
+
   private final ConnectionFactory connectionFactory;
   private final JetStreamConfiguration natsConfiguration;
+
   private final AtomicReference<Connection> messageConnection = new AtomicReference<>();
+
+  public TaskScheduler(ConnectionFactory connectionFactory, JetStreamConfiguration natsConfiguration) {
+    this.connectionFactory = connectionFactory;
+    this.natsConfiguration = natsConfiguration;
+  }
 
   @Scheduled(every = "10s", concurrentExecution = Scheduled.ConcurrentExecution.SKIP)
   @RunOnVirtualThread

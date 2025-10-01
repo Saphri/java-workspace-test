@@ -4,20 +4,23 @@ import java.util.concurrent.CompletionStage;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
+import org.jboss.logging.Logger;
 import org.mjelle.service.TaskWorkerFactory;
 
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.api.SubscribeMessageMetadata;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.enterprise.context.ApplicationScoped;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.jbosslog.JBossLog;
 
 @ApplicationScoped
-@RequiredArgsConstructor
-@JBossLog
 public class ResourceEventConsumer {
 
+  private final Logger log = Logger.getLogger(ResourceEventConsumer.class);
+
   private final TaskWorkerFactory worker;
+
+  public ResourceEventConsumer(TaskWorkerFactory worker) {
+    this.worker = worker;
+  }
 
   @Incoming("resource-event-in")
   @RunOnVirtualThread

@@ -9,13 +9,16 @@ import java.util.Optional;
 import io.nats.client.api.DeliverPolicy;
 import io.nats.client.api.ReplayPolicy;
 import io.quarkiverse.reactive.messaging.nats.jetstream.client.configuration.ConsumerConfiguration;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 public class TaskConsumerConfiguration implements ConsumerConfiguration {
 
   private final String subject;
   private final Duration ackWait;
+
+  public TaskConsumerConfiguration(String subject, Duration ackWait) {
+    this.subject = subject;
+    this.ackWait = ackWait;
+  }
 
   @Override
   public Optional<Duration> ackWait() {
