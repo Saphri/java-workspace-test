@@ -1,0 +1,27 @@
+{
+  "openapi" : "3.1.0",
+  "paths" : {
+    "/hello" : {
+      "get" : {
+        "responses" : {
+          "204" : {
+            "description" : "No Content"
+          }
+        },
+        "summary" : "Seed Tasks",
+        "tags" : [ "Greeting Resource" ]
+      }
+    }
+  },
+  "info" : {
+    "title" : "fun API",
+    "version" : "1.0.0-SNAPSHOT"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Auto generated value"
+  }, {
+    "url" : "http://0.0.0.0:8080",
+    "description" : "Auto generated value"
+  } ]
+}
