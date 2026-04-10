@@ -6,7 +6,6 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Message;
 
-import io.quarkiverse.reactive.messaging.nats.jetstream.client.api.PublishMessageMetadata;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
