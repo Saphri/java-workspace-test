@@ -11,3 +11,10 @@ services:
       --pass guest
     labels:
       io.quarkus.devservices.compose.wait_for.logs: .*Server is ready.*
+  lgtm:
+    image: grafana/otel-lgtm
+    container_name: lgtm
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+      - "3000:3000"
