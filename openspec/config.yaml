@@ -1,25 +1,21 @@
 schema: spec-driven
 
 context: |
-  Tech stack: Java 25, Quarkus, NATS JetStream, Maven.
-  Architecture: Virtual Threads (Project Loom) - strictly non-reactive.
-  Domain: Demo project featuring REST endpoints, task scheduling, and asynchronous messaging.
-  
-  Conventions & Style:
-    - Boilerplate: Lombok.
-    - Immutability: Prefer `final` variables and `var` for local type inference.
-    - Null Safety: Use `@Nullable` and `@NonNull` (javax.annotation).
-    - Testing: JUnit 5, AssertJ, `@QuarkusTest`, Quarkus mocking frameworks, and `@TestProfile`.
-    - Documentation: Javadoc for public APIs, OpenAPI annotations for REST.
-    - Code Style: Standard Java/Quarkus conventions, space indentation.
-    - Version Control: Conventional commits.
-    - Configuration: `application.properties` with environment variable overrides.
-    - Error Handling: Quarkus exception mappers.
-    - Security: OIDC authentication.
-
+  Stack: Java 25, Quarkus, NATS JetStream, Maven.
+  Constraint: Virtual Threads (Project Loom), strictly non-reactive.
+  Conventions: Lombok, final/var, @Nullable/@NonNull (javax.annotation), JUnit 5, AssertJ, @QuarkusTest, Javadoc, OpenAPI.
 
 rules:
   proposal:
     - Every change must be implemented in a dedicated git branch named exactly after the change folder name.
     - The step after change folder creation of any proposal must be the creation of the corresponding branch in the git repository.
     - The branch must be created from the `main` branch.
+  specs:
+    - Focus on "what" and "why", avoiding "how".
+    - Requirements must be verifiable and unambiguous.
+  design:
+    - Detail the "how": architecture, data models, and API contracts.
+    - Justify key technical decisions.
+  tasks:
+    - Tasks must be atomic, actionable, and independent.
+    - Each task must include a clear "Definition of Done".
