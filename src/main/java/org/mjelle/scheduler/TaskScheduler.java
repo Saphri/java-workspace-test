@@ -1,20 +1,27 @@
 package org.mjelle.scheduler;
 
 import org.eclipse.microprofile.reactive.messaging.Incoming;
-import org.eclipse.microprofile.reactive.messaging.Message;
 import org.jboss.logging.Logger;
 
-import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
+import io.opentelemetry.api.metrics.Meter;
+import io.opentelemetry.api.metrics.LongCounter;
 
 @ApplicationScoped
 public class TaskScheduler {
   
   private final Logger log = Logger.getLogger(TaskScheduler.class);
+  private final LongCounter onResourceEventCounter;
+
+  public TaskScheduler(Meter meter) {
+    this.onResourceEventCounter = meter.counterBuilder("task_scheduler_on_resource_event")
+        .setDescription("Counts invocations of onResourceEvent")
+        .build();
+  }
 
   @Incoming("data-in")
-  public Uni<Void> onResourceEvent(Message<String> msg) {
-    log.infof("onResourceEvent running: %s", msg.getPayload());
-    return Uni.createFrom().completionStage(msg.ack());
+  public void onResourceEvent(String msg) {
+    log.infof("onResourceEvent running: %s", msg);
+    onResourceEventCounter.add(1);
   }
 }
