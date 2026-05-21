@@ -3,16 +3,25 @@
 {
 	"name": "Java",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/java:1-21-bullseye",
+	"image": "mcr.microsoft.com/devcontainers/base:bullseye",
 
 	"features": {
 		"ghcr.io/devcontainers/features/java:1": {
-			"version": "none",
+			"version": "25.r25-mandrel",
+			"jdkDistro": "mandrel",
 			"installMaven": "false",
 			"installGradle": "false"
 		},
 		"ghcr.io/devcontainers/features/docker-in-docker:3": {},
-		"ghcr.io/devcontainers/features/node:2": {}
+		"ghcr.io/devcontainers/features/node:2": {
+			"version": "24"
+		},
+        "ghcr.io/devcontainers-extra/features/quarkus-sdkman:2": {
+			"version": "3.33.1.1",
+			"jdkDistro": "mandrel",
+			"jdkVersion": "25.r25-mandrel"
+		},
+        "ghcr.io/devcontainer-community/devcontainer-features/opencode.ai:1": {}
 	},
 	"customizations": {
 		"vscode": {
@@ -26,10 +35,10 @@
 	},
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [8080]
+	"forwardPorts": [8080],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "java -version",
+	"postCreateCommand": "npm install -g @fission-ai/openspec@latest"
 
 	// Configure tool-specific properties.
 	// "customizations": {},
