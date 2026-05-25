@@ -29,7 +29,8 @@
 				"vscjava.vscode-java-pack",
 				"redhat.vscode-quarkus",
 				"ms-azuretools.vscode-docker",
-				"SonarSource.sonarlint-vscode"
+				"SonarSource.sonarlint-vscode",
+				"eamodio.gitlens"
 			]
 		}
 	},
