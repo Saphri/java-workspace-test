@@ -44,6 +44,10 @@
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-smallrye-context-propagation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkus</groupId>
             <artifactId>quarkus-opentelemetry</artifactId>
         </dependency>
         <dependency>
@@ -105,11 +109,11 @@
                     </goals>
                     <configuration>
                         <oldSpec>src/main/openapi/openapi.json</oldSpec>
-                        <newSpec>openapi_specs/openapi.json</newSpec>
+                        <newSpec>${project.build.directory}/openapi_specs/openapi.json</newSpec>
                         <failOnIncompatible>true</failOnIncompatible>
                         <failOnChanged>true</failOnChanged>
-                        <jsonOutputFileName>${project.basedir}/openapi_specs/diff.json</jsonOutputFileName>
-                        <markdownOutputFileName>${project.basedir}/openapi_specs/diff.md</markdownOutputFileName>
+                        <jsonOutputFileName>${project.build.directory}/openapi_specs/diff.json</jsonOutputFileName>
+                        <markdownOutputFileName>${project.build.directory}/openapi_specs/diff.md</markdownOutputFileName>
                     </configuration>
                 </execution>
             </executions>

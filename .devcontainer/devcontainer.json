@@ -30,7 +30,8 @@
 				"redhat.vscode-quarkus",
 				"ms-azuretools.vscode-docker",
 				"SonarSource.sonarlint-vscode",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"humao.rest-client"
 			]
 		}
 	},

@@ -1,7 +1,8 @@
 
 ###
 GET http://localhost:8080/hello HTTP/1.1
-
+traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01
+baggage: foo=bar
 
 ###
 GET http://localhost:8080/q/health HTTP/1.1
