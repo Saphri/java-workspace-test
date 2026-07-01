@@ -1,10 +1,9 @@
 package org.mjelle.scheduler;
 
-import java.util.stream.Collectors;
-
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Message;
 import org.jboss.logging.Logger;
+import org.mjelle.util.BaggageUtils;
 
 import io.opentelemetry.api.baggage.Baggage;
 import io.smallrye.common.annotation.RunOnVirtualThread;
@@ -21,20 +20,11 @@ public class TaskScheduler {
   public Uni<Void> onResourceEvent(Message<String> msg) {
     log.infof("onResourceEvent running: %s", msg.getPayload());
 
-    Baggage currentBaggage = Baggage.current();
-    log.infof("current baggage: %s", asString(currentBaggage));
+    final var currentBaggage = Baggage.current();
+    log.infof("current baggage: %s", BaggageUtils.asString(currentBaggage));
 
     return Uni.createFrom().completionStage(msg.ack());
   }
-private static String asString(Baggage baggage) {
-    return baggage.asMap().entrySet().stream()
-        .map(
-            entry ->
-                String.format(
-                    "%s=%s(%s)",
-                    entry.getKey(),
-                    entry.getValue().getValue(),
-                    entry.getValue().getMetadata().getValue()))
-        .collect(Collectors.joining(", ", "{", "}"));
-  }
+  
+
 }
