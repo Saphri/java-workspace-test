@@ -16,7 +16,7 @@ public class BaggageSpanProcessor implements SpanProcessor {
 
     @Override
     public void onStart(Context parentContext, ReadWriteSpan span) {
-        Baggage baggage = Baggage.fromContext(parentContext);
+        final var baggage = Baggage.fromContext(parentContext);
         baggage.forEach((key, entry) -> span.setAttribute(key, entry.getValue()));
     }
 
