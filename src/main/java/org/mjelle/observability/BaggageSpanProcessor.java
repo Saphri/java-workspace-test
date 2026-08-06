@@ -7,6 +7,7 @@ import io.opentelemetry.sdk.trace.ReadWriteSpan;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 
 @ApplicationScoped
+// ponytail: required by openspec/specs/baggage-span-attributes/spec.md
 public class BaggageSpanProcessor implements SpanProcessor {
 
     @Override
